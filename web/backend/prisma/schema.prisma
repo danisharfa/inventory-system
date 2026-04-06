@@ -16,7 +16,7 @@ model Product {
   id          Int     @id @default(autoincrement())
   name        String  @db.VarChar(255)
   description String? @db.VarChar(255)
-  price       Float   @default(0)
+  price       Int     @default(0)
   quantity    Int     @default(0)
 
   createdAt DateTime @default(now())
