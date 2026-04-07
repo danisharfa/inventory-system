@@ -1,10 +1,10 @@
 import { DataTable } from '@/components/ui/data-table';
 import { columns } from '@/components/product/ProductTable';
 import { AddProductDialog } from '@/components/product/AddProductDialog';
+import { apiUrl } from '@/lib/api';
 
 async function getProducts() {
-  console.log('Fetching products from API...');
-  const res = await fetch('http://localhost:8080/api/product');
+  const res = await fetch(apiUrl('/product'));
 
   return res.json();
 }

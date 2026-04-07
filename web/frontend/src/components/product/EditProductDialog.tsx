@@ -7,37 +7,40 @@ import { useForm } from '@tanstack/react-form';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
-  DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { toast } from 'sonner';
-import { CirclePlus } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 import { productSchema } from '@/lib/schema/product';
+import { type Product } from './ProductTable';
 import { apiUrl } from '@/lib/api';
 
-export function AddProductDialog() {
+interface EditProductDialogProps {
+  product: Product;
+}
+
+export function EditProductDialog({ product }: EditProductDialogProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
   const form = useForm({
     defaultValues: {
-      name: '',
-      description: '',
-      price: 0,
-      quantity: 0,
+      name: product.name,
+      description: product.description ?? '',
+      price: product.price,
+      quantity: product.quantity,
     },
-
     validators: {
       onSubmit: productSchema,
     },
-
     onSubmit: async ({ value }) => {
       try {
         const payload = {
@@ -45,8 +48,8 @@ export function AddProductDialog() {
           description: value.description || undefined,
         };
 
-        const res = await fetch(apiUrl('/product'), {
-          method: 'POST',
+        const res = await fetch(apiUrl(`/product/${product.id}`), {
+          method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -54,7 +57,7 @@ export function AddProductDialog() {
         });
 
         if (!res.ok) {
-          let errorMessage = 'Failed to create product';
+          let errorMessage = 'Failed to edit product';
 
           try {
             const errorBody = await res.json();
@@ -66,14 +69,14 @@ export function AddProductDialog() {
           throw new Error(errorMessage);
         }
 
-        toast.success('Product created successfully', {
+        toast.success('Product updated successfully', {
           position: 'bottom-center',
         });
 
         setOpen(false);
         router.refresh();
       } catch (error) {
-        const message = error instanceof Error ? error.message : 'Failed to create product';
+        const message = error instanceof Error ? error.message : 'Failed to edit product';
         toast.error(message, {
           position: 'bottom-center',
         });
@@ -93,15 +96,16 @@ export function AddProductDialog() {
       }}
     >
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <CirclePlus /> Add Product
+        <Button variant="secondary" size="sm">
+          <Pencil />
+          Edit
         </Button>
       </DialogTrigger>
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add New Product</DialogTitle>
-          <DialogDescription>Fill in the product details below and click save.</DialogDescription>
+          <DialogTitle>Edit Product</DialogTitle>
+          <DialogDescription>Update the product details below and click save.</DialogDescription>
         </DialogHeader>
 
         <form
@@ -169,8 +173,8 @@ export function AddProductDialog() {
                     value={field.state.value}
                     onBlur={field.handleBlur}
                     onChange={(e) => {
-                      const val = e.target.value;
-                      field.handleChange(val === '' ? 0 : Number(val));
+                      const value = e.target.value;
+                      field.handleChange(value === '' ? 0 : Number(value));
                     }}
                     placeholder="Enter price"
                     aria-invalid={isInvalid}
@@ -195,8 +199,8 @@ export function AddProductDialog() {
                     value={field.state.value}
                     onBlur={field.handleBlur}
                     onChange={(e) => {
-                      const val = e.target.value;
-                      field.handleChange(val === '' ? 0 : Number(val));
+                      const value = e.target.value;
+                      field.handleChange(value === '' ? 0 : Number(value));
                     }}
                     placeholder="Enter quantity"
                     aria-invalid={isInvalid}
@@ -209,7 +213,7 @@ export function AddProductDialog() {
 
           <DialogFooter>
             <Button type="submit" disabled={form.state.isSubmitting}>
-              {form.state.isSubmitting ? 'Adding...' : 'Add'}
+              {form.state.isSubmitting ? 'Saving...' : 'Save Changes'}
             </Button>
           </DialogFooter>
         </form>

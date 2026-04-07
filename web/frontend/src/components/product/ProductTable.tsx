@@ -1,7 +1,7 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { GoButton } from '../GoButton';
+import { GoButton } from '@/components/GoButton';
 
 export type Product = {
   id: number;
@@ -19,10 +19,21 @@ export const columns: ColumnDef<Product>[] = [
   {
     accessorKey: 'price',
     header: 'Price',
+    cell: ({ row }) => {
+      const price = row.original.price;
+      return price.toLocaleString('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+      });
+    },
   },
   {
     accessorKey: 'quantity',
     header: 'Quantity',
+    cell: ({ row }) => {
+      const quantity = row.original.quantity;
+      return quantity.toLocaleString('id-ID');
+    },
   },
   {
     id: 'actions',
