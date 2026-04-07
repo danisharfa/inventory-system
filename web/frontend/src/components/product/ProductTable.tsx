@@ -2,11 +2,16 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { GoButton } from '@/components/GoButton';
+import { Badge } from '../ui/badge';
 
 export type Product = {
   id: number;
   name: string;
   description: string;
+  categoryId?: number;
+  category?: {
+    name: string;
+  };
   price: number;
   quantity: number;
 };
@@ -15,6 +20,14 @@ export const columns: ColumnDef<Product>[] = [
   {
     accessorKey: 'name',
     header: 'Name',
+  },
+  {
+    accessorKey: 'category.name',
+    header: 'Category',
+    cell: ({ row }) => {
+      const category = row.original.category?.name;
+      return <Badge variant="secondary">{category || 'Uncategorized'}</Badge>;
+    },
   },
   {
     accessorKey: 'price',

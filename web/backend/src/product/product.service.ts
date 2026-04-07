@@ -12,6 +12,7 @@ export class ProductService {
       data: {
         name: dto.name,
         description: dto.description || null,
+        categoryId: dto.categoryId,
         price: dto.price,
         quantity: dto.quantity,
       },
@@ -20,6 +21,9 @@ export class ProductService {
 
   async getProductList() {
     return await this.prisma.product.findMany({
+      include: {
+        category: true,
+      },
       orderBy: {
         updatedAt: 'desc',
       },
@@ -29,6 +33,9 @@ export class ProductService {
   async getProduct(id: number) {
     return await this.prisma.product.findUnique({
       where: { id },
+      include: {
+        category: true,
+      },
     });
   }
 
@@ -37,6 +44,9 @@ export class ProductService {
       return await this.prisma.product.update({
         where: { id },
         data: dto,
+        include: {
+          category: true,
+        },
       });
     } catch (error) {
       throw new NotFoundException(`Product ${id} not found`);

@@ -19,8 +19,9 @@ import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { toast } from 'sonner';
 import { CirclePlus } from 'lucide-react';
 
-import { productSchema } from '@/lib/schema/product';
+import { type ProductInput, productSchema } from '@/lib/schema/product';
 import { apiUrl } from '@/lib/api';
+import { CategorySelect } from './ProductCategorySelect';
 
 export function AddProductDialog() {
   const router = useRouter();
@@ -30,9 +31,10 @@ export function AddProductDialog() {
     defaultValues: {
       name: '',
       description: '',
+      categoryId: undefined,
       price: 0,
       quantity: 0,
-    },
+    } as ProductInput,
 
     validators: {
       onSubmit: productSchema,
@@ -42,7 +44,8 @@ export function AddProductDialog() {
       try {
         const payload = {
           ...value,
-          description: value.description || undefined,
+          description: value.description?.trim() === '' ? null : (value.description ?? null),
+          categoryId: value.categoryId ?? undefined,
         };
 
         const res = await fetch(apiUrl('/product'), {
@@ -70,6 +73,7 @@ export function AddProductDialog() {
           position: 'bottom-center',
         });
 
+        form.reset();
         setOpen(false);
         router.refresh();
       } catch (error) {
@@ -127,7 +131,7 @@ export function AddProductDialog() {
                     placeholder="Enter product name"
                     aria-invalid={isInvalid}
                   />
-                  {isInvalid && <FieldError errors={field.state.meta.errors as never[]} />}
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
               );
             }}
@@ -149,10 +153,22 @@ export function AddProductDialog() {
                     placeholder="Enter description"
                     aria-invalid={isInvalid}
                   />
-                  {isInvalid && <FieldError errors={field.state.meta.errors as never[]} />}
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
               );
             }}
+          </form.Field>
+
+          <form.Field name="categoryId">
+            {(field) => (
+              <Field>
+                <FieldLabel>Category</FieldLabel>
+                <CategorySelect
+                  value={field.state.value as number | undefined}
+                  onChange={(val) => field.handleChange(val)}
+                />
+              </Field>
+            )}
           </form.Field>
 
           <form.Field name="price">
@@ -175,7 +191,7 @@ export function AddProductDialog() {
                     placeholder="Enter price"
                     aria-invalid={isInvalid}
                   />
-                  {isInvalid && <FieldError errors={field.state.meta.errors as never[]} />}
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
               );
             }}
@@ -201,7 +217,7 @@ export function AddProductDialog() {
                     placeholder="Enter quantity"
                     aria-invalid={isInvalid}
                   />
-                  {isInvalid && <FieldError errors={field.state.meta.errors as never[]} />}
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
               );
             }}

@@ -21,4 +21,9 @@ export class UpdateProductDto {
   @IsNumber()
   @Min(0)
   quantity?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  categoryId?: number;
 }

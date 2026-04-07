@@ -19,9 +19,10 @@ import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { toast } from 'sonner';
 import { Pencil } from 'lucide-react';
 
-import { productSchema } from '@/lib/schema/product';
+import { type ProductInput, productSchema } from '@/lib/schema/product';
 import { type Product } from './ProductTable';
 import { apiUrl } from '@/lib/api';
+import { CategorySelect } from './ProductCategorySelect';
 
 interface EditProductDialogProps {
   product: Product;
@@ -35,9 +36,10 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
     defaultValues: {
       name: product.name,
       description: product.description ?? '',
+      categoryId: product.categoryId ?? undefined,
       price: product.price,
       quantity: product.quantity,
-    },
+    } as ProductInput,
     validators: {
       onSubmit: productSchema,
     },
@@ -45,7 +47,8 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
       try {
         const payload = {
           ...value,
-          description: value.description || undefined,
+          description: value.description?.trim() === '' ? null : (value.description ?? null),
+          categoryId: value.categoryId ?? undefined,
         };
 
         const res = await fetch(apiUrl(`/product/${product.id}`), {
@@ -131,7 +134,7 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
                     placeholder="Enter product name"
                     aria-invalid={isInvalid}
                   />
-                  {isInvalid && <FieldError errors={field.state.meta.errors as never[]} />}
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
               );
             }}
@@ -153,10 +156,19 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
                     placeholder="Enter description"
                     aria-invalid={isInvalid}
                   />
-                  {isInvalid && <FieldError errors={field.state.meta.errors as never[]} />}
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
               );
             }}
+          </form.Field>
+
+          <form.Field name="categoryId">
+            {(field) => (
+              <Field>
+                <FieldLabel>Category</FieldLabel>
+                <CategorySelect value={field.state.value} onChange={field.handleChange} />
+              </Field>
+            )}
           </form.Field>
 
           <form.Field name="price">
@@ -179,7 +191,7 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
                     placeholder="Enter price"
                     aria-invalid={isInvalid}
                   />
-                  {isInvalid && <FieldError errors={field.state.meta.errors as never[]} />}
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
               );
             }}
@@ -205,7 +217,7 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
                     placeholder="Enter quantity"
                     aria-invalid={isInvalid}
                   />
-                  {isInvalid && <FieldError errors={field.state.meta.errors as never[]} />}
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
               );
             }}
