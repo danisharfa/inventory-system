@@ -21,8 +21,17 @@ export class ProductService {
 
   async getProductList() {
     return await this.prisma.product.findMany({
-      include: {
-        category: true,
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        quantity: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
       orderBy: {
         updatedAt: 'desc',
